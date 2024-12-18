@@ -1,0 +1,6 @@
+torch
+torchvision # bind to torch version
+lightning>=2.4,<2.5
+torchmetrics>=1.6,<1.7
+# TODO указать ветку опредленной версии
+torchdatapipe @ git+https://github.com/AndreyYashkin/torchdatapipe.git@main#egg=torchdatapipe
