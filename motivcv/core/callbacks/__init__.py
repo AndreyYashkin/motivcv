@@ -6,3 +6,4 @@ from .visualization import (  # noqa: F401
     DataAnnotationVisualization,
     DEFAULT_MAX_BS,
 )
+from .thop import Thtop  # noqa: F401
