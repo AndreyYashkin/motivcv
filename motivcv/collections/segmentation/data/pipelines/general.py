@@ -19,7 +19,7 @@ def fix_chanel_multilabel(arr):
 def dict2item_fn(data):
     segmentation = data["segmentation"]
     weight = data.get("weight")
-    annotation = SegmentationAnnotation(segmentation, weight, data.get("metadata"))
+    annotation = SegmentationAnnotation(segmentation, weight)
     return ImageScene(id=data["id"], image=data["image"], annotation=annotation)
 
 
@@ -44,7 +44,7 @@ class CachedSegmentationPipeline(DefaultDatasetPipeline, MultiplePipelines):
     def get_writer(self, writer_root, **kwargs):
         fix_chanel_fn = fix_chanel_multilabel if self.multilabel else identity
         _item2dict_fn = partial(item2dict_fn, fix_chanel_fn=fix_chanel_fn)
-        writer = BinaryWriter(writer_root, self.code, _item2dict_fn)
+        writer = BinaryWriter(writer_root, self.code, _item2dict_fn, fast_keys=["metadata"])
         return writer
 
     @override
