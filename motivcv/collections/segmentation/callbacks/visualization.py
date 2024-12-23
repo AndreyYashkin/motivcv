@@ -13,23 +13,23 @@ class LossWeightVisualization(DataVisualizationBase):
 
     @override
     def get_images(self, pl_module, batch):
-        items = batch["scenes"]
-        label = batch["label"]
-        weights = batch.get("weights")
+        focal_cls_weight = pl_module.algorithm.focal_cls_weight.cpu().numpy()
+        _, annotation, items = batch
+        label = annotation["segmentation"].cpu().numpy().astype(np.uint8)
+        weights = annotation.get("weights").cpu().numpy()
 
         if len(items) > self.max_bs:
             items = items[: self.max_bs]
             label = label[: self.max_bs]
-            if weights is not None:
-                weights = weights[: self.max_bs]
+            weights = weights[: self.max_bs]
 
-        weights = pl_module.build_loss_weight(label, weights).cpu().numpy()
-        max_value = weights.max() if self.max_value is None else self.max_value
+        cls_weights = focal_cls_weight[label]
+        max_value = np.maximum(weights, cls_weights)
         weights = (np.clip(weights, 0, max_value) / max_value * 255).astype(np.uint8)
 
         images = []
         for item, w in zip(items, weights):
-            image = item.visualizate(grayscale=True)
+            image = item.visualize(grayscale=True)
             w = cv2.applyColorMap(w, cv2.COLORMAP_PLASMA)
             w = cv2.cvtColor(w, cv2.COLOR_BGR2RGB)
             image = add_segmentation(image, w)
